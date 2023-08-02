@@ -1,0 +1,21 @@
+@startuml
+entity "CD" as CD {
+    *codCd <<PK>>
+    --
+    *titulo
+    dataCompra
+    valorPago
+    localCompra
+}
+
+entity "Musica" as Musica {
+    *nrMusica <<PK>>
+    --
+    codCd <<FK>>
+    *titulo
+    *interprete
+    duracao
+}
+
+CD ||..|{ Musica
+@enduml
