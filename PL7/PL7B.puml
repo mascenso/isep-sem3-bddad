@@ -1,0 +1,30 @@
+@startuml
+left to right direction
+
+entity "CD" as CD {
+    *codCd <<PK>>
+    --
+    *titulo
+    dataCompra
+    valorPago
+    localCompra
+}
+
+entity "Musica" as Musica {
+    *nrMusica <<PK>>
+    --
+    codCd <<FK>>
+    *titulo
+    *interprete
+    duracao
+}
+
+entity "Editora" as Editora {
+    *idEditora <<PK>>
+    --
+    nome
+}
+
+CD ||--o{ Musica
+Editora ||..o{CD
+@enduml
