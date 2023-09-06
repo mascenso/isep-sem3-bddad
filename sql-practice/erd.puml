@@ -1,0 +1,45 @@
+@startuml
+
+entity Patient {
+patient_id : INTEGER  <<PK>>
+--
+first_name : VARCHAR(30)
+last_name : VARCHAR(30)
+gender : CHAR(1)
+birth_date : DATE
+city : VARCHAR(30)
+province_id : CHAR(2) <<FK>>
+allergies : VARCHAR(30)
+height : DECIMAL(3,0)
+weight : DECIMAL(3,0)
+}
+
+entity Doctor {
+doctor_id : INTEGER  <<PK>>
+--
+first_name : VARCHAR(30)
+last_name : VARCHAR(30)
+specialty : VARCHAR(25)
+}
+
+entity Province {
+province_id : CHAR(2)  <<PK>>
+--
+province_name : VARCHAR(30)
+}
+
+entity Admission {
+patient_id : INTEGER  <<PK>>
+--
+admission_date : DATE
+discharge_date : DATE
+diagnosis : VARCHAR(50)
+attending_doctor_id : INTEGER <<FK>>
+}
+
+Patient ||..|{ Admission
+Doctor ||--o{ Admission
+Province ||--o{ Patient
+
+
+@enduml
