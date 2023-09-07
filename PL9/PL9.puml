@@ -1,0 +1,127 @@
+@startuml
+left to right direction
+skinparam linetype ortho
+
+entity "Venda" as Venda {
+    *nrVenda <<PK>>
+    --
+    nifCliente <<FK>>
+    isbn <<FK>>
+    dataHora
+    quantidade
+}
+
+entity "Cliente" as Cliente {
+    *nifCliente
+    --
+    codPostal <<FK>>
+    nome
+    dataNascimento
+    morada
+    nrTelemovel
+}
+
+entity "CodigoPostal" as CP {
+    *codPostal
+    --
+    localidade
+}
+
+entity "CartaoCliente" as CCliente {
+    *nrCartao
+    --
+    nifCliente <<FK>>
+    dataAdesao
+    saldoAtual
+    saldoAcumuladp
+}
+
+entity "EdicaoLivro" as EL {
+    *isbn
+    --
+    idLivro <<FK>>
+    codIdioma <<FK>>
+    idEditora <<FK>>
+    nrEdicao
+    mesEdicao
+    anoEdicao
+    stockMin
+    stock
+}
+
+entity "PrecoEdicaoLivro" as PEL{
+    *isbn <<PK, FK>>
+    *dataInicio <<PK,FK>>
+    --
+    preco
+}
+
+entity "Idioma" as Idioma {
+    *codEdioma
+    --
+    designacao
+}
+
+entity "Livro" as Livro {
+    *idLivro
+    --
+    idCategoria <<FK>>
+    titulo
+}
+
+entity "Categoria" as Categoria {
+    *idCategoria
+    --
+    designacao
+}
+
+entity "Editora" as Editora {
+    *idEditora <<PK>>
+    --
+    nome
+    codPais <<FK>>
+}
+
+entity "Pais" as Pais {
+    *codPais
+    --
+    nome
+}
+
+entity "NacionalidadeAutor" as NA {
+    *idAutor <<PK, FK>>
+    *codPais <<PK, FK>>
+}
+
+entity "Autor" as Autor {
+    *idAutor <<PK>>
+    --
+    nome
+}
+
+entity "AutorEdicaoLivro" as AEL {
+    *idAutor <<PK, FK>>
+    *isbn <<PK, FK>>
+}
+
+Venda }o..|| Cliente
+Venda }o..|| EL
+Cliente ||..o| CCliente
+Cliente }o..|| CP
+
+PEL }o--|| EL
+Idioma ||..o{ EL
+
+EL }o..|| Livro
+
+EL ||--o{ AEL
+EL }o..|| Editora
+
+Editora }o..|| Pais
+Pais ||--o{ NA
+NA }o--|| Autor
+Autor ||--o{ AEL
+
+Livro }o..|| Categoria
+
+@enduml
