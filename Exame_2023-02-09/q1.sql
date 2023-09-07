@@ -52,28 +52,44 @@ INSERT INTO sales_order (ID, ORDER_DATE) VALUES (12, TO_DATE('2023-01-30', 'YYYY
 INSERT INTO sales_order (ID, ORDER_DATE) VALUES (13, TO_DATE('2023-01-30', 'YYYY-MM-DD'));
 INSERT INTO sales_order (ID, ORDER_DATE) VALUES (14, TO_DATE('2023-02-01', 'YYYY-MM-DD'));
 INSERT INTO sales_order (ID, ORDER_DATE) VALUES (15, TO_DATE('2023-02-03', 'YYYY-MM-DD'));
+INSERT INTO sales_order (ID, ORDER_DATE) VALUES (16, TO_DATE('2023-02-03', 'YYYY-MM-DD'));
+
 
 INSERT INTO sales (SALES_ORDER_ID, ITEM_ID, QTY) VALUES (12, 344, 12);
 INSERT INTO sales (SALES_ORDER_ID, ITEM_ID, QTY) VALUES (12, 342, 24);
 INSERT INTO sales (SALES_ORDER_ID, ITEM_ID, QTY) VALUES (13, 345, 18);
 INSERT INTO sales (SALES_ORDER_ID, ITEM_ID, QTY) VALUES (14, 345, 24);
+INSERT INTO sales (SALES_ORDER_ID, ITEM_ID, QTY) VALUES (15, 343, 10);
+INSERT INTO sales (SALES_ORDER_ID, ITEM_ID, QTY) VALUES (16, 343, 10);
 
 -- # queries #
 
 -- a)[20] Escreva uma query para retornar a lista de itens vendidos em cada dia ordenada pela quantidade total de
 -- vendas. A query deve devolver nome do item, nome da família do item, data e quantidade vendida (qty).
 
-SELECT i.name  "Item_name", f.name "Family_name", so.order_date, s.qty FROM sales s, item i, item_family f, sales_order so
+SELECT
+    i.name  Item_name,
+    f.name Family_name,
+    so.order_date Sales_order_date,
+    sum(s.qty) total_qty
+FROM sales s, item i, item_family f, sales_order so
 WHERE s.item_id = i.id AND i.family = f.id AND s.sales_order_id = so.id
-ORDER BY s.qty DESC;
+GROUP BY so.order_date, f.name, i.name
+ORDER BY 4 DESC;
 
 --or:
 
-SELECT i.name "Item_name", f.name "Family_name", so.order_date, s.qty FROM sales s
+SELECT
+    i.name Item_name,
+    f.name Family_name,
+    so.order_date Sales_order_date,
+    sum(s.qty) total_qty
+FROM sales s
 INNER JOIN item i ON s.item_id = i.id
 INNER JOIN item_family f ON i.family = f.id
 INNER JOIN sales_order so ON s.sales_order_id = so.id
-ORDER BY s.qty DESC;
+GROUP BY so.order_date, f.name, i.name
+ORDER BY 4 DESC;
 
 -- b)[20] Crie uma única View Sales_Qty para mostrar a distribuição da quantidade de vendas por item e mês,
 -- bem como por família e ano, conforme exemplificado abaixo. A view deve indicar o tipo (type) de cada tuplo:
@@ -89,6 +105,13 @@ UNION
 SELECT f.id, TO_CHAR(so.order_date, 'YYYY') time, 'Family' Type, sum(s.qty) as total_qty FROM sales s, item i, item_family f, sales_order so
 WHERE s.sales_order_id = so.id AND f.id = i.family AND s.item_id = i.id
 GROUP BY f.id, TO_CHAR(so.order_date, 'YYYY');
+
+select * from SALES_QTY;
+
+-- c)[20] Altere a View criada em b) para mostrar a quantidade de vendas de todos os itens por mês e de todas as
+-- famílias por ano para os períodos em que tenha havido vendas, mesmo para os itens que não tenham sido
+-- vendidos. Neste último caso, considerar a quantidade de vendas igual a 0.
+
 
 select * from SALES_QTY;
 
