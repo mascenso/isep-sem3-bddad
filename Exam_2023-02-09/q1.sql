@@ -106,22 +106,43 @@ SELECT f.id, EXTRACT(YEAR FROM so.order_date) time, 'Family' Type, sum(s.qty) as
 WHERE s.sales_order_id = so.id AND f.id = i.family AND s.item_id = i.id
 GROUP BY f.id, EXTRACT(YEAR FROM so.order_date);
 
+-- alternative, with inner join:
+CREATE OR REPLACE VIEW Sales_Qty AS
+SELECT i.id product, EXTRACT(MONTH FROM so.order_date) time, 'Item' Type, sum(s.qty)  as total_qty
+FROM sales s
+INNER JOIN item i ON s.item_id = i.id
+INNER JOIN sales_order so ON s.sales_order_id = so.id
+GROUP BY i.id, EXTRACT(MONTH FROM so.order_date)
+UNION
+SELECT f.id, EXTRACT(YEAR FROM so.order_date) time, 'Family' Type, sum(s.qty) as total_qty
+FROM sales s
+INNER JOIN item i ON s.item_id = i.id
+INNER JOIN item_family f ON i.family = f.id
+INNER JOIN sales_order so ON s.sales_order_id = so.id
+GROUP BY f.id, EXTRACT(YEAR FROM so.order_date);
+
+
 select * from SALES_QTY;
 
 -- c)[20] Altere a View criada em b) para mostrar a quantidade de vendas de todos os itens por mês e de todas as
 -- famílias por ano para os períodos em que tenha havido vendas, mesmo para os itens que não tenham sido
 -- vendidos. Neste último caso, considerar a quantidade de vendas igual a 0.
 
-CREATE OR REPLACE VIEW Sales_Qty AS --?????????????????? TODO
--- item e mes
-SELECT i.id product, EXTRACT(MONTH FROM so.order_date) time, 'Item' Type, sum(s.qty) as total_qty FROM sales s, item i, sales_order so
-WHERE s.item_id = i.id AND s.sales_order_id = so.id
+CREATE OR REPLACE VIEW Sales_Qty_Periods AS
+SELECT i.id AS product, EXTRACT(MONTH FROM so.order_date) AS time, 'Item' AS Type, NVL(SUM(s.qty), 0) AS total_qty
+FROM sales_order so
+         CROSS JOIN item i
+         LEFT OUTER JOIN sales s ON s.item_id = i.id AND s.sales_order_id = so.id
 GROUP BY i.id, EXTRACT(MONTH FROM so.order_date)
-UNION
--- family e ano
-SELECT f.id, EXTRACT(YEAR FROM so.order_date) time, 'Family' Type, sum(s.qty) as total_qty FROM sales s, item i, item_family f, sales_order so
-WHERE s.sales_order_id = so.id AND f.id = i.family AND s.item_id = i.id
+UNION ALL
+SELECT f.id AS product, EXTRACT(YEAR FROM so.order_date) AS time, 'Family' AS Type, NVL(SUM(s.qty), 0) AS total_qty
+FROM sales_order so
+         CROSS JOIN item_family f
+         LEFT OUTER JOIN item i ON i.family = f.id
+         LEFT OUTER JOIN sales s ON s.item_id = i.id AND s.sales_order_id = so.id
 GROUP BY f.id, EXTRACT(YEAR FROM so.order_date);
+
+select * from Sales_Qty_Periods
 
 -- ########################## 2. ##########################
 -- ##########################    ##########################
@@ -139,7 +160,3 @@ select *
 from sales s1, sales s2
 where s1.item_id = s2.item_id and s1.qty <> s2.qty;
 --dependencia funcional: item_id -> qty nao se verifica, pois a query devolve tuplos
-
-
-
-
