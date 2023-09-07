@@ -52,15 +52,12 @@ INSERT INTO sales_order (ID, ORDER_DATE) VALUES (12, TO_DATE('2023-01-30', 'YYYY
 INSERT INTO sales_order (ID, ORDER_DATE) VALUES (13, TO_DATE('2023-01-30', 'YYYY-MM-DD'));
 INSERT INTO sales_order (ID, ORDER_DATE) VALUES (14, TO_DATE('2023-02-01', 'YYYY-MM-DD'));
 INSERT INTO sales_order (ID, ORDER_DATE) VALUES (15, TO_DATE('2023-02-03', 'YYYY-MM-DD'));
-INSERT INTO sales_order (ID, ORDER_DATE) VALUES (16, TO_DATE('2023-02-03', 'YYYY-MM-DD'));
 
 
 INSERT INTO sales (SALES_ORDER_ID, ITEM_ID, QTY) VALUES (12, 344, 12);
 INSERT INTO sales (SALES_ORDER_ID, ITEM_ID, QTY) VALUES (12, 342, 24);
 INSERT INTO sales (SALES_ORDER_ID, ITEM_ID, QTY) VALUES (13, 345, 18);
 INSERT INTO sales (SALES_ORDER_ID, ITEM_ID, QTY) VALUES (14, 345, 24);
-INSERT INTO sales (SALES_ORDER_ID, ITEM_ID, QTY) VALUES (15, 343, 10);
-INSERT INTO sales (SALES_ORDER_ID, ITEM_ID, QTY) VALUES (16, 343, 10);
 
 -- # queries #
 
@@ -97,14 +94,14 @@ ORDER BY 4 DESC;
 
 CREATE OR REPLACE VIEW Sales_Qty AS
 -- item e mes
-SELECT i.id product, TO_CHAR(so.order_date, 'MM') time, 'Item' Type, sum(s.qty) as total_qty FROM sales s, item i, sales_order so
+SELECT i.id product, EXTRACT(MONTH FROM so.order_date) time, 'Item' Type, sum(s.qty) as total_qty FROM sales s, item i, sales_order so
 WHERE s.item_id = i.id AND s.sales_order_id = so.id
-GROUP BY i.id, TO_CHAR(so.order_date, 'MM')
+GROUP BY i.id, EXTRACT(MONTH FROM so.order_date)
 UNION
 -- family e ano
-SELECT f.id, TO_CHAR(so.order_date, 'YYYY') time, 'Family' Type, sum(s.qty) as total_qty FROM sales s, item i, item_family f, sales_order so
+SELECT f.id, EXTRACT(YEAR FROM so.order_date) time, 'Family' Type, sum(s.qty) as total_qty FROM sales s, item i, item_family f, sales_order so
 WHERE s.sales_order_id = so.id AND f.id = i.family AND s.item_id = i.id
-GROUP BY f.id, TO_CHAR(so.order_date, 'YYYY');
+GROUP BY f.id, EXTRACT(YEAR FROM so.order_date);
 
 select * from SALES_QTY;
 
